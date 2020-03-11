@@ -1,0 +1,33 @@
+fullnameOverride: consul
+
+server:
+  enabled: true
+
+client:
+  exposeGossipPorts: true
+
+ui:
+  service:
+    type: NodePort
+
+syncCatalog:
+  enabled: true
+  default: false
+
+connectInject:
+  enabled: true
+  k8sDenyNamespaces:
+    - kubernetes-dashboard
+
+meshGateway:
+  enabled: true
+  globalMode: local
+  replicas: 2
+  wanAddress:
+    port: 443
+    useNodeIP: true
+
+  service:
+    enabled: true
+    type: NodePort
+    nodePort: 32011
