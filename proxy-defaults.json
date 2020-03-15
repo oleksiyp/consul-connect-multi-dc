@@ -1,0 +1,10 @@
+{
+  "kind": "proxy-defaults",
+  "name": "global",
+  "mesh_gateway": {
+    "mode": "local"
+  },
+  "config": {
+    "envoy_dogstatsd_url": "udp://127.0.0.1:9125"
+  }
+}
