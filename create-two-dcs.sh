@@ -6,7 +6,7 @@ kind create cluster --name "dc2" --config cluster.yaml
 function setup() {
   kubectl apply -f dashboard.yaml
 
-  helm upgrade -i -f prometheus-values.yaml prometheus prometheus
+  helm upgrade -i -f prometheus-values.yaml prometheus stable/prometheus
   helm upgrade -i -f grafana-values.yaml grafana stable/grafana
 
   kubectl label nodes $1-worker consul=server --overwrite

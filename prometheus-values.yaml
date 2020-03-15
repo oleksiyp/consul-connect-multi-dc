@@ -1,6 +1,11 @@
 server:
   global:
     scrape_interval: 10s
+  securityContext: # required only to fix Kind permissioning issue, not recommended for prod
+    runAsNonRoot: false
+    runAsUser: 0
+    runAsGroup: 0
+    fsGroup:
 extraScrapeConfigs: |
   - job_name: 'envoy'
     scrape_interval: 1s
