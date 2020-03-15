@@ -151,10 +151,9 @@ spec:
 
               exec /bin/consul agent \
                 -node="${NODE}" \
-                -advertise-wan="${ADVERTISE_IP}" \
+                -advertise="${ADVERTISE_IP}" \
                 -bind=0.0.0.0 \
                 -client=0.0.0.0 \
-                -ui \
                 -node-meta=pod-name:${HOSTNAME} \
                 -hcl='leave_on_terminate = true' \
                 {{- if .Values.global.tls.enabled }}

@@ -178,10 +178,6 @@ server:
   # via the extraConfig setting.
   connect: true
 
-  # If true, Consul's gRPC port will be exposed (see https://www.consul.io/docs/agent/options.html#grpc_port).
-  # This should be set to true if connectInject or meshGateway is enabled.
-  grpc: true
-
   # Resource requests, limits, etc. for the server cluster placement. This
   # should map directly to the value of the resources field for a PodSpec,
   # formatted as a multi-line string. By default no direct resource request
@@ -238,8 +234,7 @@ server:
   # Example:
   # nodeSelector: |
   #   beta.kubernetes.io/arch: amd64
-  nodeSelector: |
-    consul: server
+  nodeSelector: null
 
   # used to assign priority to server pods
   # ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
@@ -329,8 +324,7 @@ client:
   # Example:
   # nodeSelector: |
   #   beta.kubernetes.io/arch: amd64
-  nodeSelector: |
-    consul: client
+  nodeSelector: null
 
   # Affinity Settings for Client pods, formatted as a multi-line YAML string.
   # ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
