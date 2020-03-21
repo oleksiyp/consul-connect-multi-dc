@@ -1,5 +1,5 @@
 function build() {
-  pushd service
+  pushd service-go
   make
   popd
 }

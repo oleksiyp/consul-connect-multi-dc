@@ -1,5 +1,5 @@
 function build() {
-  pushd prefixrouter
+  pushd prefixrouter-go
   make
   popd
 }
