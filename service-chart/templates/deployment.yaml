@@ -22,13 +22,15 @@ spec:
         - name: "service"
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          env:
-          - name: DC
-            value: {{ .Values.dc }}
-          - name: SERVICE_NAME
-            value: {{ .Values.name }}
-          - name: ENDPOINTS
-            value: "{{ .Values.endpoints }}"
+          args:
+            - --serviceName
+            - {{ .Values.name }}
+            - --dc
+            - {{ .Values.dc }}
+            - --upstreams
+            - "{{ .Values.endpoints }}"
+            - --port
+            - "8080"
           ports:
             - name: http
               containerPort: 8080
@@ -36,12 +38,12 @@ spec:
           livenessProbe:
             initialDelaySeconds: 150
             httpGet:
-              path: /
+              path: /healthz
               port: http
           readinessProbe:
             failureThreshold: 5
             httpGet:
-              path: /
+              path: /healthz
               port: http
         - name: prometheus-envoy
           image: "envoyproxy/envoy:latest"

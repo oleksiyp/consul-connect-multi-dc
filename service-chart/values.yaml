@@ -7,7 +7,7 @@ replicaCount: 1
 name: "service"
 
 image:
-  repository: service
+  repository: oleksiyp/service
   tag: v1
 
 service:

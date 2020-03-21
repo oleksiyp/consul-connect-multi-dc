@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}
+      annotations:
+        "consul.hashicorp.com/connect-service": "{{ .Values.name }}"
+        "consul.hashicorp.com/connect-inject": "true"
+        "consul.hashicorp.com/connect-service-protocol": "http"
+    spec:
+      serviceAccountName: {{ .Values.name }}
+      containers:
+        - name: "prefixrouter-controller"
+          image: "{{ .Values.controller.repository }}:{{ .Values.controller.tag }}"
+          imagePullPolicy: {{ .Values.controller.pullPolicy }}
+          env:
+            - name: HOST_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: CONSUL_HTTP_ADDR
+              value: http://$(HOST_IP):8500
+          args:
+            - --serviceName
+            - {{ .Values.name }}
+            - --namespace
+            - {{ .Release.Namespace }}

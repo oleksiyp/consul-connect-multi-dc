@@ -1,4 +1,16 @@
-FROM openjdk:8-jdk-alpine
-COPY target/service-*.jar service.jar
-WORKDIR /
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/service.jar"]
+FROM alpine:3.11
+
+RUN addgroup -S service \
+    && adduser -S -g service service \
+    && apk --no-cache add ca-certificates
+
+WORKDIR /home/service
+
+COPY /bin/service .
+
+RUN chown -R service:service ./
+
+USER service
+
+ENTRYPOINT ["./service"]
+

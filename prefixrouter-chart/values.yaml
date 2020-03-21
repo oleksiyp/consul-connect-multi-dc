@@ -1,0 +1,12 @@
+replicaCount: 1
+name: "prefixrouter"
+
+controller:
+  repository: oleksiyp/prefixrouter
+  tag: v1
+
+service:
+  type: NodePort
+  port: 8080
+  nodePort: 32202
+

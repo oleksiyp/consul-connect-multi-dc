@@ -1,0 +1,13 @@
+replicaCount: 1
+name: "ingress"
+
+controller:
+  repository: ingress-controller
+  tag: v1
+
+service:
+  type: NodePort
+  port: 8080
+  nodePort: 32203
+
+upstream: prefixrouter
