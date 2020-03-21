@@ -1,0 +1,28 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: routes.prefixrouter.app
+spec:
+  group: prefixrouter.app
+  names:
+    plural: routes
+    singular: route
+    kind: Route
+  scope: Namespaced
+  versions:
+    - name: v1beta1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                prefix:
+                  description: HTTP prefix
+                  type: string
+                service:
+                  description: Service to forward traffic
+                  type: string
