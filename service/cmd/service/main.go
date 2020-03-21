@@ -101,12 +101,16 @@ func ListenAndServe(logger *zap.SugaredLogger, stopCh <-chan struct{}, upstreams
 				continue
 			}
 
+			port := upstream.port
+			name := upstream.name
+			url := "http://localhost:" + port + "/traffic/" + name
 			cnt = cnt + 1
+
 			go func() {
-				r, err := http.Get("http://localhost:" + upstream.port + "/traffic/" + upstream.name)
+				r, err := http.Get(url)
 				if err != nil {
 					logger.Errorf("Failed to fetch %v", err)
-					replyError(responses)
+					responses <- replyError(url)
 					return
 				}
 
@@ -115,7 +119,7 @@ func ListenAndServe(logger *zap.SugaredLogger, stopCh <-chan struct{}, upstreams
 				err = json.NewDecoder(r.Body).Decode(&resp)
 				if err != nil {
 					logger.Errorf("Failed to parse json %v", err)
-					replyError(responses)
+					responses <- replyError(url)
 					return
 				}
 
@@ -189,14 +193,13 @@ func aggregateResponse(cnt int, responses chan Response) Response {
 	return resultingResponse
 }
 
-func replyError(responses chan Response) {
+func replyError(url string) Response {
 	errors := make(map[string]int, 0)
-	errors[dc+"/"+serviceName] = 1
+	errors[url] = 1
 
-	errorResponse := Response{
+	return Response{
 		Name:   dc + "/" + serviceName,
 		Oks:    make(map[string]int, 0),
 		Errors: errors,
 	}
-	responses <- errorResponse
 }
