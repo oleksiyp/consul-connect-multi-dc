@@ -123,6 +123,8 @@ func (c Controller) refreshRoutes() {
 			},
 			Destination: &consulapi.ServiceRouteDestination{
 				Service: serviceName,
+				NumRetries: 5,
+				RetryOnConnectFailure: true,
 			},
 		})
 	}

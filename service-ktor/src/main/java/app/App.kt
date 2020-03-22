@@ -10,6 +10,7 @@ import io.ktor.client.request.accept
 import io.ktor.client.request.get
 import io.ktor.features.ContentNegotiation
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
 import io.ktor.response.respond
 import io.ktor.response.respondText
@@ -17,8 +18,6 @@ import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import org.slf4j.LoggerFactory
 import java.lang.RuntimeException
 import java.util.concurrent.ThreadLocalRandom
@@ -83,6 +82,7 @@ suspend fun queryServices(n: Int): Response {
 }
 
 fun main() {
+    var respondOk = true
     val server = embeddedServer(Netty, 8080) {
         install(ContentNegotiation) {
             jackson {
@@ -93,9 +93,28 @@ fun main() {
             get("/healthz") {
                 call.respondText("OK", ContentType.Text.Plain)
             }
+            get("/healthz_consul") {
+                if (respondOk) {
+                    call.respondText("OK", ContentType.Text.Plain)
+                } else {
+                    call.respondText("Failure", status = HttpStatusCode.ServiceUnavailable)
+                }
+            }
             get("/traffic/$serviceName") {
-                val n = call.parameters["n"]?.toIntOrNull() ?: countIterations
-                call.respond(queryServices(n - 1))
+                if (respondOk) {
+                    val n = call.parameters["n"]?.toIntOrNull() ?: countIterations
+                    call.respond(queryServices(n - 1))
+                } else {
+                    call.respondText("Failure", status = HttpStatusCode.ServiceUnavailable)
+                }
+            }
+            get("/on") {
+                respondOk = true
+                call.respondText("OK", ContentType.Text.Plain)
+            }
+            get("/off") {
+                respondOk = false
+                call.respondText("OK", ContentType.Text.Plain)
             }
         }
     }

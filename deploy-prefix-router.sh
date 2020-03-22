@@ -4,7 +4,7 @@ function build() {
   popd
 }
 
-#build
+build
 
 
 IMAGE_ID=$(docker images oleksiyp/prefixrouter:latest --format "{{.ID}}")

@@ -1,0 +1,16 @@
+.gauge {
+  width: 100px !important;
+}
+
+.row {
+  display: flex;
+}
+.row > div:first-child {
+  width: 20%;
+  padding: 50px;
+  margin: auto;
+}
+.row > div:nth-child(2) {
+  width: 70%;
+  margin: 50px;
+}

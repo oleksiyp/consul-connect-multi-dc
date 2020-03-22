@@ -72,6 +72,15 @@ func (cr *ConsulConnectRouter) updateSplitter(canary *flaggerv1.Canary, primaryW
 func (cr *ConsulConnectRouter) reconcileResolver(canary *flaggerv1.Canary) error {
 	apexName, primaryName, _ := canary.GetServiceNames()
 
+	dcs, err := cr.consulClient.Catalog().Datacenters()
+	if err != nil {
+		cr.logger.Warnf("Failed to fetch dc list %v", err)
+		dcs = make([]string, 0)
+	}
+	if len(dcs) >= 1 {
+		dcs = dcs[1:]
+	}
+
 	resolver := &consulapi.ServiceResolverConfigEntry{
 		Kind:          consulapi.ServiceResolver,
 		Name:          apexName,
@@ -84,6 +93,21 @@ func (cr *ConsulConnectRouter) reconcileResolver(canary *flaggerv1.Canary) error
 				Filter: "Service.ID not matches \"" + primaryName + "-.+\"",
 			},
 		},
+	}
+
+	if len(dcs) > 0 {
+		resolver.Failover = make(map[string]consulapi.ServiceResolverFailover)
+		resolver.Failover["primary"] = consulapi.ServiceResolverFailover{
+			Service:       apexName,
+			ServiceSubset: "primary",
+			Datacenters:   dcs,
+		}
+
+		resolver.Failover["canary"] = consulapi.ServiceResolverFailover{
+			Service:       apexName,
+			ServiceSubset: "canary",
+			Datacenters:   dcs,
+		}
 	}
 
 	result, _, err := cr.consulClient.ConfigEntries().Set(resolver, nil)
