@@ -15,9 +15,9 @@ kind load docker-image oleksiyp/prefixrouter:$IMAGE_ID --name dc1
 kind load docker-image oleksiyp/prefixrouter:$IMAGE_ID --name dc2
 
 kubectl config use-context kind-dc1
-kubectl apply -f prefixrouter/artifacts/prefixrouter/crd.yaml
+kubectl apply -f prefixrouter-go/artifacts/prefixrouter/crd.yaml
 helm upgrade -i prefixrouter prefixrouter-chart --set name=prefixrouter --set controller.tag=$IMAGE_ID --set dc=dc1
 
 kubectl config use-context kind-dc2
-kubectl apply -f prefixrouter/artifacts/prefixrouter/crd.yaml
+kubectl apply -f prefixrouter-go/artifacts/prefixrouter/crd.yaml
 helm upgrade -i prefixrouter prefixrouter-chart --set name=prefixrouter --set controller.tag=$IMAGE_ID --set dc=dc2

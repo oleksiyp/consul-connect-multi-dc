@@ -7,7 +7,7 @@ replicaCount: 1
 name: "service"
 
 image:
-  repository: oleksiyp/service
+  repository: service
   tag: v1
 
 service:
@@ -15,4 +15,3 @@ service:
   port: 8080
 
 upstreams: "svc1:3333,svc2:3334,svc3:3335,svc4:3336"
-endpoints: "0.4:3333:svc1;0.4:3334:svc2;0.4:3335:svc3;0.4:3336:svc4;"

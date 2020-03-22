@@ -13,8 +13,8 @@ docker tag weaveworks/flagger:latest weaveworks/flagger:$IMAGE_ID
 kind load docker-image weaveworks/flagger:$IMAGE_ID --name dc1
 kind load docker-image weaveworks/flagger:$IMAGE_ID --name dc2
 
-CONSUL_DC1=`docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' dc1-server1`
-CONSUL_DC2=`docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' dc2-server1`
+CONSUL_DC1=`docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' dc1-worker`
+CONSUL_DC2=`docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' dc2-worker`
 
 helm upgrade --kube-context kind-dc1 \
   -i flagger flagger/charts/flagger \

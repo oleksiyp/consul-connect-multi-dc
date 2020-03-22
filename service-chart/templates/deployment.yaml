@@ -22,15 +22,17 @@ spec:
         - name: "service"
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          args:
-            - --serviceName
-            - {{ .Values.name }}
-            - --dc
-            - {{ .Values.dc }}
-            - --upstreams
-            - "{{ .Values.endpoints }}"
-            - --port
-            - "8080"
+          env:
+            - name: serviceName
+              value: {{ .Values.name }}
+            - name: dc
+              value: {{ .Values.dc }}
+            - name: upstreams
+              value: "{{ .Values.upstreams }}"
+            - name: countIterations
+              value: "10"
+            - name: tag
+              value: "v{{ .Release.Revision }}"
           ports:
             - name: http
               containerPort: 8080
