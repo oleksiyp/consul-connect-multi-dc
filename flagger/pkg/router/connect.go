@@ -11,10 +11,10 @@ import (
 
 // ConsulConnectRouter is managing Consul connect splitters
 type ConsulConnectRouter struct {
-	kubeClient          kubernetes.Interface
-	consulClient        *consulapi.Client
-	flaggerClient       clientset.Interface
-	logger              *zap.SugaredLogger
+	kubeClient    kubernetes.Interface
+	consulClient  *consulapi.Client
+	flaggerClient clientset.Interface
+	logger        *zap.SugaredLogger
 }
 
 // Reconcile creates or updates the Consul Connect resolver
@@ -183,4 +183,3 @@ func (cr *ConsulConnectRouter) SetRoutes(
 ) error {
 	return cr.updateSplitter(canary, float32(primaryWeight), float32(canaryWeight))
 }
-
