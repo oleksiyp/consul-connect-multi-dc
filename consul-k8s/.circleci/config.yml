@@ -1,0 +1,142 @@
+version: 2.1
+# reusable 'executor' object for jobs
+executors:
+  go:
+    docker:
+      - image: circleci/golang:1.13
+    environment:
+      - TEST_RESULTS: /tmp/test-results # path to where test results are saved
+      - CONSUL_VERSION: 1.7.0 # Consul's OSS version to use in tests
+      - CONSUL_ENT_VERSION: 1.7.0+ent # Consul's enterprise version to use in tests
+
+jobs:
+  go-fmt-and-vet:
+    executor: go
+    steps:
+      - checkout
+
+      # Restore go module cache if there is one
+      - restore_cache:
+          keys:
+            - consul-k8s-modcache-v1-{{ checksum "go.mod" }}
+
+      - run: go mod download
+
+      # Save go module cache if the go.mod file has changed
+      - save_cache:
+          key: consul-k8s-modcache-v1-{{ checksum "go.mod" }}
+          paths:
+            - "/go/pkg/mod"
+
+      # check go fmt output because it does not report non-zero when there are fmt changes
+      - run:
+          name: check go fmt
+          command: |
+            files=$(go fmt ./...)
+            if [ -n "$files" ]; then
+              echo "The following file(s) do not conform to go fmt:"
+              echo "$files"
+              exit 1
+            fi
+      - run: go vet ./...
+
+  # lint consul tests
+  lint-consul-retry:
+    executor: go
+    steps:
+      - checkout
+      - run: go get -u github.com/hashicorp/lint-consul-retry && lint-consul-retry
+
+  test:
+    executor: go
+    environment:
+      TEST_RESULTS: /tmp/test-results
+    parallelism: 1
+    steps:
+      - checkout
+      - run: mkdir -p $TEST_RESULTS
+
+      # Restore go module cache if there is one
+      - restore_cache:
+          keys:
+            - consul-k8s-modcache-v1-{{ checksum "go.mod" }}
+
+      # run go tests with gotestsum
+      - run: |
+          # download and install the consul binary
+          wget https://releases.hashicorp.com/consul/"${CONSUL_VERSION}"/consul_"${CONSUL_VERSION}"_linux_amd64.zip && \
+               unzip consul_"${CONSUL_VERSION}"_linux_amd64.zip -d /home/circleci/bin &&
+               rm consul_"${CONSUL_VERSION}"_linux_amd64.zip
+          PACKAGE_NAMES=$(go list ./...)
+          gotestsum --junitfile $TEST_RESULTS/gotestsum-report.xml -- -p 4 $PACKAGE_NAMES
+
+      - store_test_results:
+          path: /tmp/test-results
+      - store_artifacts:
+          path: /tmp/test-results
+
+  test_enterprise:
+    executor: go
+    environment:
+      TEST_RESULTS: /tmp/test-results
+    parallelism: 1
+    steps:
+      - checkout
+      - run: mkdir -p $TEST_RESULTS
+
+      # Restore go module cache if there is one
+      - restore_cache:
+          keys:
+            - consul-k8s-modcache-v1-{{ checksum "go.mod" }}
+
+      # run go tests with gotestsum
+      - run: |
+          # download and install the consul binary
+          wget https://releases.hashicorp.com/consul/"${CONSUL_ENT_VERSION}"/consul_"${CONSUL_ENT_VERSION}"_linux_amd64.zip && \
+               unzip consul_"${CONSUL_ENT_VERSION}"_linux_amd64.zip -d /home/circleci/bin &&
+               rm consul_"${CONSUL_ENT_VERSION}"_linux_amd64.zip
+      - run: |
+          PACKAGE_NAMES=$(go list ./...)
+          gotestsum --junitfile $TEST_RESULTS/gotestsum-report.xml -- -tags=enterprise -p 4 $PACKAGE_NAMES
+      - store_test_results:
+          path: /tmp/test-results
+      - store_artifacts:
+          path: /tmp/test-results
+
+  build-distros:
+    executor: go
+    environment:
+      GOXPARALLEL: 2 # CircleCI containers are 2 CPU x 4GB RAM
+    steps:
+      - checkout
+
+      # Restore go module cache if there is one
+      - restore_cache:
+          keys:
+            - consul-k8s-modcache-v1-{{ checksum "go.mod" }}
+
+      - run: make tools
+      - run: ./build-support/scripts/build-local.sh
+
+      # save dev build to CircleCI
+      - store_artifacts:
+          path: ./pkg/bin
+
+workflows:
+  version: 2
+  test-and-build:
+    jobs:
+      - go-fmt-and-vet
+      - lint-consul-retry
+      - test:
+          requires:
+            - go-fmt-and-vet
+            - lint-consul-retry
+      - test_enterprise:
+          requires:
+            - go-fmt-and-vet
+            - lint-consul-retry
+      - build-distros:
+          requires:
+            - test
+            - test_enterprise
