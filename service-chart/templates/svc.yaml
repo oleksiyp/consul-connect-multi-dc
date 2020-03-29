@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.name }}
+  labels:
+    app: {{ .Values.name }}
+spec:
+  selector:
+    app: "{{ .Values.name }}"
+  type: "ClusterIP"
+  ports:
+    - name: expose-http
+      port: 21500
+      targetPort: expose-http
+    - name: service-mesh
+      port: 20000
+      targetPort: service-mesh

@@ -151,6 +151,7 @@ spec:
 
               exec /bin/consul agent \
                 -node="${NODE}" \
+                -advertise="${ADVERTISE_IP}" \
                 -advertise-wan="${ADVERTISE_IP}" \
                 -bind=0.0.0.0 \
                 -client=0.0.0.0 \
@@ -223,6 +224,9 @@ spec:
               mountPath: /consul/aclconfig
             {{- end }}
           ports:
+            - containerPort: 40000
+              hostPort: 40000
+              name: debug
             {{- if (or (not .Values.global.tls.enabled) (not .Values.global.tls.httpsOnly)) }}
             - containerPort: 8500
               hostPort: 8500
@@ -249,7 +253,13 @@ spec:
               protocol: "UDP"
               name: serflan-udp
             - containerPort: 8302
-              name: serfwan
+              name: serfwan-tcp
+              hostPort: 8302
+              protocol: "TCP"
+            - containerPort: 8302
+              name: serfwan-udp
+              hostPort: 8302
+              protocol: "UDP"
             - containerPort: 8300
               name: server
             - containerPort: 8600
@@ -283,6 +293,7 @@ spec:
       {{- if .Values.global.bootstrapACLs }}
       - name: client-acl-init
         image: {{ .Values.global.imageK8S }}
+        imagePullPolicy: Never
         command:
           - "/bin/sh"
           - "-ec"

@@ -16,6 +16,7 @@ spec:
         "consul.hashicorp.com/connect-inject": "true"
         "consul.hashicorp.com/connect-service-upstreams": "{{ .Values.upstreams }}"
         "consul.hashicorp.com/connect-service-protocol": "http"
+        "consul.hashicorp.com/connect-service-exposed-http-checks": "/healthz"
     spec:
       serviceAccountName: {{ .Values.name }}
       containers:
@@ -37,15 +38,18 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
+            - name: exposed-http
+              containerPort: 21500
+              protocol: TCP
           livenessProbe:
             initialDelaySeconds: 150
             httpGet:
-              path: /healthz
+              path: /health_k8s
               port: http
           readinessProbe:
             failureThreshold: 5
             httpGet:
-              path: /healthz
+              path: /health_k8s
               port: http
         - name: prometheus-envoy
           image: "envoyproxy/envoy:latest"

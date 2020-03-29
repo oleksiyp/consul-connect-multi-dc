@@ -45,6 +45,7 @@ spec:
       containers:
         - name: consul-sync-catalog
           image: "{{ default .Values.global.imageK8S .Values.syncCatalog.image }}"
+          imagePullPolicy: Never
           env:
             - name: HOST_IP
               valueFrom:
@@ -169,6 +170,7 @@ spec:
       initContainers:
       - name: sync-acl-init
         image: {{ .Values.global.imageK8S }}
+        imagePullPolicy: Never
         command:
           - "/bin/sh"
           - "-ec"

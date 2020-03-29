@@ -48,6 +48,7 @@ spec:
       containers:
         - name: post-install-job
           image: {{ .Values.global.imageK8S }}
+          imagePullPolicy: Never
           env:
             - name: NAMESPACE
               valueFrom:

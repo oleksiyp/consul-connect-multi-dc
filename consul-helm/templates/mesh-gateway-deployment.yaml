@@ -85,6 +85,7 @@ spec:
         # know that it's been created.
         - name: mesh-gateway-acl-init
           image: {{ .Values.global.imageK8S }}
+          imagePullPolicy: Never
           command:
             - "/bin/sh"
             - "-ec"

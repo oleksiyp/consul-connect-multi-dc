@@ -36,6 +36,7 @@ spec:
       containers:
         - name: sidecar-injector
           image: "{{ default .Values.global.imageK8S .Values.connectInject.image }}"
+          imagePullPolicy: Never
           env:
             - name: NAMESPACE
               valueFrom:
@@ -78,7 +79,7 @@ spec:
 
               consul-k8s inject-connect \
                 -default-inject={{ .Values.connectInject.default }} \
-                -consul-image="{{ default .Values.global.image .Values.connectInject.imageConsul }}" \
+                -consul-image="consul:1.7.1" \
                 {{ if .Values.connectInject.imageEnvoy -}}
                 -envoy-image="{{ .Values.connectInject.imageEnvoy }}" \
                 {{ end -}}
@@ -184,6 +185,7 @@ spec:
       initContainers:
       - name: injector-acl-init
         image: {{ .Values.global.imageK8S }}
+        imagePullPolicy: Never
         command:
           - "/bin/sh"
           - "-ec"

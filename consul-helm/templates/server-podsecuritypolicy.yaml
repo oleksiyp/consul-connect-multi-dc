@@ -10,6 +10,8 @@ metadata:
     release: {{ .Release.Name }}
 spec:
   privileged: false
+  allowedCapabilities:
+    - SYS_PTRACE
   # Required to prevent escalations to root.
   allowPrivilegeEscalation: false
   # This is redundant with non-root + disallow privilege escalation,

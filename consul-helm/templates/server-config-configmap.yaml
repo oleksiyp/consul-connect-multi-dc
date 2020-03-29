@@ -11,6 +11,24 @@ metadata:
     heritage: {{ .Release.Service }}
     release: {{ .Release.Name }}
 data:
+  {{- if .Values.server.connect }}
+  connect.hcl: |-
+    connect {
+      enabled = true
+    {{- if eq .Values.server.connectCA.provider "vault" }}
+      ca_provider = "vault"
+      ca_config {
+        {{- if .Values.server.connectCA.clusterId }}
+        cluster_id = "{{ .Values.server.connectCA.clusterId }}"
+        {{- end }}
+        address = "{{ .Values.server.connectCA.vault.address }}"
+        token = "{{ .Values.server.connectCA.vault.token }}"
+        root_pki_path = "{{ default .Values.server.connectCA.vault.rootPKIPath "/connect/root" }}"
+        intermediate_pki_path = "{{ default "/connect/intermediate" .Values.server.connectCA.vault.intermediatePKIPath }}"
+      }
+    {{- end }}
+    }
+  {{- end }}
   extra-from-values.json: |-
 {{ tpl .Values.server.extraConfig . | trimAll "\"" | indent 4 }}
   {{- if .Values.global.bootstrapACLs }}

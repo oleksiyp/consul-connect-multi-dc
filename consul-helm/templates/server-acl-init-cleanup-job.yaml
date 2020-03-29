@@ -45,6 +45,7 @@ spec:
       containers:
         - name: server-acl-init-cleanup
           image: {{ .Values.global.imageK8S }}
+          imagePullPolicy: Never
           command:
             - consul-k8s
           args:

@@ -11,6 +11,8 @@ metadata:
 spec:
   privileged: false
   # Required to prevent escalations to root.
+  allowedCapabilities:
+    - SYS_PTRACE
   allowPrivilegeEscalation: false
   # This is redundant with non-root + disallow privilege escalation,
   # but we can provide it for defense in depth.

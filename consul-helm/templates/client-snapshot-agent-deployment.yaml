@@ -120,6 +120,7 @@ spec:
       initContainers:
       - name: client-snapshot-agent-acl-init
         image: {{ .Values.global.imageK8S }}
+        imagePullPolicy: Never
         command:
           - "/bin/sh"
           - "-ec"

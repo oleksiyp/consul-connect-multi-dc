@@ -1,7 +1,16 @@
 fullnameOverride: consul
 
+global:
+  imageK8S: consul-k8s-dev:59061fbd3bcb
+
 server:
   enabled: true
+  connectCA:
+    provider: vault
+    clusterId: "ddc9fd39-f31d-b093-e950-c076e4a1cd55"
+    vault:
+      address: "http://172.17.0.7:8200"
+      token: "s.5PzKLbqwfUWXoKaLfer26DOm"
 
 client:
   exposeGossipPorts: true
@@ -18,13 +27,21 @@ connectInject:
   enabled: true
   k8sDenyNamespaces:
     - kubernetes-dashboard
+  centralConfig:
+    proxyDefaults: |
+      {
+        "Expose": {
+          "Checks": true
+        }
+      }
 
 meshGateway:
   enabled: true
   globalMode: local
   replicas: 2
+  hostPort: 8250
   wanAddress:
-    port: 443
+    port: 8250
     useNodeIP: true
 
   service:

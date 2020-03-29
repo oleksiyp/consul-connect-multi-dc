@@ -155,6 +155,17 @@ server:
   image: null
   replicas: 3
   bootstrapExpect: 3 # Should <= replicas count
+  connectCA:
+    provider: ""
+    privateKey: ""
+    rootCert: ""
+    clusterId: null
+    vault:
+      address: ""
+      token: ""
+      rootPKIPath: null
+      intermediatePKIPath: null
+
 
   # enterpriseLicense refers to a Kubernetes secret that you have created that
   # contains your enterprise license. It is required if you are using an
@@ -205,7 +216,11 @@ server:
   # extraConfig is a raw string of extra configuration to set with the
   # server. This should be JSON.
   extraConfig: |
-    {}
+    {
+      "gossip_wan": {
+        "probe_timeout": "2s"
+      }
+    }
 
   # extraVolumes is a list of extra volumes to mount. These will be exposed
   # to Consul in the path `/consul/userconfig/<name>/`. The value below is
@@ -305,7 +320,11 @@ client:
   # extraConfig is a raw string of extra configuration to set with the
   # client. This should be JSON.
   extraConfig: |
-    {}
+    {
+      "gossip_wan": {
+        "probe_timeout": "2s"
+      }
+    }
 
   # extraVolumes is a list of extra volumes to mount. These will be exposed
   # to Consul in the path `/consul/userconfig/<name>/`. The value below is
