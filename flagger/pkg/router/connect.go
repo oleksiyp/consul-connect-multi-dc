@@ -184,29 +184,3 @@ func (cr *ConsulConnectRouter) SetRoutes(
 	return cr.updateSplitter(canary, float32(primaryWeight), float32(canaryWeight))
 }
 
-func (cr *ConsulConnectRouter) UpdateConsulConfig(name string, kind string, updateFn func(config consulapi.ConfigEntry) (bool, error)) error {
-	for true {
-		entry, meta, err := cr.consulClient.ConfigEntries().Get(kind, name, nil)
-		if err != nil {
-			return err
-		}
-
-		ok, err := updateFn(entry)
-		if err != nil {
-			return err
-		}
-		if !ok {
-			return nil
-		}
-
-		ok, _, err = cr.consulClient.ConfigEntries().CAS(entry, meta.LastIndex, nil)
-		if err != nil {
-			return err
-		}
-
-		if ok {
-			return nil
-		}
-	}
-	return nil
-}
