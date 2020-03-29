@@ -91,14 +91,14 @@ fun main() {
         }
         routing {
             get("/healthz") {
-                call.respondText("OK", ContentType.Text.Plain)
-            }
-            get("/healthz_consul") {
                 if (respondOk) {
                     call.respondText("OK", ContentType.Text.Plain)
                 } else {
                     call.respondText("Failure", status = HttpStatusCode.ServiceUnavailable)
                 }
+            }
+            get("/health_k8s") {
+                call.respondText("OK", ContentType.Text.Plain)
             }
             get("/traffic/$serviceName") {
                 if (respondOk) {
