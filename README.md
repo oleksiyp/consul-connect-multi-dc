@@ -1,7 +1,10 @@
 # Startup instruction
 ```
 $ bash create-two-dcs.sh
-# (wait till consul started)
+$ deploy-vault.sh
+
+Unseal cluster and put Vault's token and host IP to consul-values.yaml
+
 $ deploy-all.sh
 $ cd ingress-js
 $ npm start
