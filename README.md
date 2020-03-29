@@ -1,13 +1,10 @@
 # Startup instruction
 ```
-Prerequisites: kind, go, helm, java, maven, node
+Prerequisites: docker, kind, go, helm, java, maven, node, vault(command line)
 
 $ bash create-two-dcs.sh
-$ deploy-vault.sh
+$ bash deploy-all.sh
+$ docker run -p 3000:80 oleksiyp/ingress-js:latest
 
-Unseal cluster and put Vault's token and host IP to consul-values.yaml
-
-$ deploy-all.sh
-$ cd ingress-js
-$ npm start
+Open [http://localhost:3000](http://localhost:3000)
 ```

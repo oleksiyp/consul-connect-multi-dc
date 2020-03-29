@@ -9,8 +9,8 @@ server:
     provider: vault
     clusterId: "ddc9fd39-f31d-b093-e950-c076e4a1cd55"
     vault:
-      address: "http://172.17.0.7:8200"
-      token: "s.5PzKLbqwfUWXoKaLfer26DOm"
+      address: ""
+      token: "root"
 
 client:
   exposeGossipPorts: true

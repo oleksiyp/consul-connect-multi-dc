@@ -1,7 +1,7 @@
 
 
 function ips() {
-        kubectl config use-context kind-$1 > /dev/null
+  kubectl config use-context kind-$1 > /dev/null
 	kubectl get nodes --selector=kubernetes.io/role!=master --selector=consul=server -o jsonpath={.items[*].status.addresses[?\(@.type==\"InternalIP\"\)].address}
 }
 

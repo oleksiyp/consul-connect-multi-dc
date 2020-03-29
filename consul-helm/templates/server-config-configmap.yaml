@@ -23,7 +23,7 @@ data:
         {{- end }}
         address = "{{ .Values.server.connectCA.vault.address }}"
         token = "{{ .Values.server.connectCA.vault.token }}"
-        root_pki_path = "{{ default .Values.server.connectCA.vault.rootPKIPath "/connect/root" }}"
+        root_pki_path = "{{ default .Values.server.connectCA.vault.rootPKIPath "connect-root" }}"
         intermediate_pki_path = "{{ default "/connect/intermediate" .Values.server.connectCA.vault.intermediatePKIPath }}"
       }
     {{- end }}

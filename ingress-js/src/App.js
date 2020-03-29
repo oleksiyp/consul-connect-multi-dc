@@ -5,8 +5,8 @@ import ReactSpeedometer from "react-d3-speedometer";
 import {CircularProgressbar} from "react-circular-progressbar";
 
 class App extends React.Component {
-    n = 800;
-    minRate = 500;
+    n = 80;
+    minRate = 50;
 
 
     constructor(props) {
@@ -18,6 +18,10 @@ class App extends React.Component {
             oks: {},
             count: 0
         };
+        this.oksWindow = [];
+        this.timeWindow = [];
+        this.services = {};
+        this.dcTags = {};
     }
 
     componentDidMount() {
@@ -38,21 +42,45 @@ class App extends React.Component {
             .then(it => it.ok ? it.json() : Promise.reject("non OK response"))
             .then(json => {
                 const endTime = new Date().getTime();
-                let count = 0;
-                const services = {};
-                const dcTags = {};
                 for (const name of Object.keys(json.oks)) {
-                    count += json.oks[name];
                     const [dc, serviceName, tag] = name.split("/");
-                    itemAt(dcTags, dc, {})[tag] = true;
-                    itemAt(services, serviceName, true);
+                    itemAt(this.dcTags, dc, {})[tag] = true;
+                    itemAt(this.services, serviceName, true);
                 }
-                const rate = 1000 * count / (endTime - startTime);
-                this.setState(state => {
-                    const tt = this.merge(state.dcTags, dcTags);
-                    const svcs = this.merge(state.services, services);
 
-                    return ({rate, dcTags: tt, services: svcs, oks: json.oks, count})
+                this.oksWindow.push(json.oks);
+                if (this.oksWindow.length > 10) {
+                    this.oksWindow.shift();
+                }
+                const oks = {};
+                let count = 0;
+                for (const okObj of this.oksWindow) {
+                    for (const key of Object.keys(okObj)) {
+                        oks[key] = (oks[key] || 0) + okObj[key];
+                        count += okObj[key];
+                    }
+                }
+
+                this.timeWindow.push(endTime - startTime);
+                if (this.timeWindow.length > 10) {
+                    this.timeWindow.shift();
+                }
+
+                console.log(this.oksWindow);
+                console.log(this.timeWindow);
+
+                let sumTime = 0;
+                for (const t of this.timeWindow) {
+                    sumTime += t;
+                }
+                const rate = 1000 * count / sumTime;
+
+                this.setState({
+                    rate,
+                    dcTags: this.dcTags,
+                    services: this.services,
+                    oks,
+                    count
                 });
             }, () => this.setState({rate: 0, oks: {}, count: 0}))
             .finally(this.scheduleNewRequest);
@@ -61,8 +89,15 @@ class App extends React.Component {
     merge(first, second) {
         const result = {...first};
         for (const it of Object.keys(second)) {
-            if (!(it in result)) {
+            if (!result[it]) {
                 result[it] = second[it];
+            } else {
+                const arr = result[it];
+                for (const jt of it) {
+                    if (arr.indexOf(jt) === -1) {
+                        arr.push(jt);
+                    }
+                }
             }
         }
         return result;
@@ -96,7 +131,7 @@ class App extends React.Component {
                     endColor="#FF471A"
                     segments={6}
                     currentValueText="RPS: ${value}"
-                    needleTransitionDuration={3000}
+                    needleTransitionDuration={700}
                     maxValue={1200}
                     valueFormat=".1f"
                 />
