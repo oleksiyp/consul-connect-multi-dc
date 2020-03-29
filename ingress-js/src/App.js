@@ -36,19 +36,6 @@ class App extends React.Component {
         this.lastRequest = startTime;
         fetch("/traffic/svc1?n=" + this.n)
             .then(it => it.ok ? it.json() : Promise.reject("non OK response"))
-        // new Promise((resolve, reject) => {
-        //     setTimeout(() => {
-        //             resolve({
-        //                 "oks": {
-        //                     "dc2/svc4/v1": 100,
-        //                     "dc2/svc3/v1": 200,
-        //                     "dc2/svc1/v1": 300,
-        //                     "dc2/svc2/v1": 400
-        //                 },
-        //             })
-        //         }, 1000
-        //     );
-        // })
             .then(json => {
                 const endTime = new Date().getTime();
                 let count = 0;
@@ -61,10 +48,25 @@ class App extends React.Component {
                     itemAt(services, serviceName, true);
                 }
                 const rate = 1000 * count / (endTime - startTime);
-                this.setState({rate, dcTags, services, oks: json.oks, count})
-            }, () => this.setState({rate: 0, dcTags: {}, services: {}, oks: {}, count: 0}))
+                this.setState(state => {
+                    const tt = this.merge(state.dcTags, dcTags);
+                    const svcs = this.merge(state.services, services);
+
+                    return ({rate, dcTags: tt, services: svcs, oks: json.oks, count})
+                });
+            }, () => this.setState({rate: 0, oks: {}, count: 0}))
             .finally(this.scheduleNewRequest);
     };
+
+    merge(first, second) {
+        const result = {...first};
+        for (const it of Object.keys(second)) {
+            if (!(it in result)) {
+                result[it] = second[it];
+            }
+        }
+        return result;
+    }
 
     scheduleNewRequest = () => {
         const currentTime = new Date().getTime();
@@ -132,7 +134,7 @@ class App extends React.Component {
 
     renderGauge(service, dc, tag) {
         const amount = this.state.oks[dc + "/" + service + "/" + tag] || 0;
-        const percentage = amount / this.state.count * 100.0;
+        const percentage = this.state.count < 0.001 ? 0 : amount / this.state.count * 100.0;
         return <CircularProgressbar
             className="gauge"
             value={percentage}
