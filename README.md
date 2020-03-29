@@ -1,5 +1,7 @@
 # Startup instruction
 ```
+Prerequisites: kind, go, helm, java, maven
+
 $ bash create-two-dcs.sh
 $ deploy-vault.sh
 
