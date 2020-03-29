@@ -13,7 +13,6 @@ import (
 type ConsulConnectRouter struct {
 	kubeClient          kubernetes.Interface
 	consulClient        *consulapi.Client
-	consulClientFactory func(string) *consulapi.Client
 	flaggerClient       clientset.Interface
 	logger              *zap.SugaredLogger
 }

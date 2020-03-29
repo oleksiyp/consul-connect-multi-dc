@@ -17,7 +17,6 @@ type Factory struct {
 	meshClient               clientset.Interface
 	flaggerClient            clientset.Interface
 	consulClient             *consulapi.Client
-	consulClientFactory      func(string) *consulapi.Client
 	ingressAnnotationsPrefix string
 	logger                   *zap.SugaredLogger
 }
@@ -28,7 +27,6 @@ func NewFactory(kubeConfig *restclient.Config, kubeClient kubernetes.Interface,
 	logger *zap.SugaredLogger,
 	meshClient clientset.Interface,
 	consulClient *consulapi.Client,
-	consulClientFactory func(string) *consulapi.Client,
 ) *Factory {
 	return &Factory{
 		kubeConfig:               kubeConfig,
@@ -37,7 +35,6 @@ func NewFactory(kubeConfig *restclient.Config, kubeClient kubernetes.Interface,
 		flaggerClient:            flaggerClient,
 		ingressAnnotationsPrefix: ingressAnnotationsPrefix,
 		consulClient:             consulClient,
-		consulClientFactory:      consulClientFactory,
 		logger:                   logger,
 	}
 }
@@ -148,7 +145,6 @@ func (factory *Factory) MeshRouter(provider string) Interface {
 			flaggerClient:       factory.flaggerClient,
 			kubeClient:          factory.kubeClient,
 			consulClient:        factory.consulClient,
-			consulClientFactory: factory.consulClientFactory,
 		}
 	default:
 		return &IstioRouter{

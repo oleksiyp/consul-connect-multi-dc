@@ -139,36 +139,11 @@ func main() {
 	}
 
 	var consulClient *consulapi.Client
-	var consulClientFactory func(string) *consulapi.Client
 	if enableConsulClient {
 		config := consulapi.DefaultConfig()
 		consulClient, err = consulapi.NewClient(config)
 		if err != nil {
 			logger.Fatalf("Error building consul client: %v", err)
-		}
-		clients := make(map[string]*consulapi.Client)
-		consulClientFactory = func(address string) *consulapi.Client {
-			client, ok := clients[address]
-			if ok {
-				return client
-			}
-			newConfig := *config
-
-			spletAddr := strings.SplitN(config.Address, ":", 2)
-			var port string
-			if len(spletAddr) < 2 {
-				port = "8500"
-			} else {
-				port = spletAddr[1]
-			}
-
-			newConfig.Address = address + ":" + port
-			client, err = consulapi.NewClient(&newConfig)
-			if err != nil {
-				logger.Fatalf("Error building consul client: %v", err)
-			}
-			clients[address] = client
-			return client
 		}
 	}
 
@@ -211,7 +186,6 @@ func main() {
 		logger,
 		meshClient,
 		consulClient,
-		consulClientFactory,
 	)
 
 	var configTracker canary.Tracker
