@@ -1,4 +1,6 @@
 
+cd $(dirname $(realpath $0))
+
 if [[ $# -ne 3 ]]; then
   echo "usage: ./contorl-svc.sh deploy dc1 svc3"
   echo "usage: ./contorl-svc.sh on dc1 svc3"
