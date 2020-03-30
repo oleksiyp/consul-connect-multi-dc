@@ -6,8 +6,10 @@ $ bash create-two-dcs.sh
 $ bash deploy-all.sh
 $ docker run -p 3000:80 oleksiyp/ingress-js:latest
 
-Open [http://localhost:3000](http://localhost:3000)
 ```
+
+Open [http://localhost:3000](http://localhost:3000)
+
 
 ### Control commands
 
