@@ -5,7 +5,7 @@ import ReactSpeedometer from "react-d3-speedometer";
 import {CircularProgressbar} from "react-circular-progressbar";
 
 class App extends React.Component {
-    n = 80;
+    n = 20;
     minRate = 50;
 
 
@@ -49,7 +49,7 @@ class App extends React.Component {
                 }
 
                 this.oksWindow.push(json.oks);
-                if (this.oksWindow.length > 10) {
+                if (this.oksWindow.length > 100) {
                     this.oksWindow.shift();
                 }
                 const oks = {};
@@ -62,7 +62,7 @@ class App extends React.Component {
                 }
 
                 this.timeWindow.push(endTime - startTime);
-                if (this.timeWindow.length > 10) {
+                if (this.timeWindow.length > 100) {
                     this.timeWindow.shift();
                 }
 
@@ -171,7 +171,7 @@ class App extends React.Component {
         const amount = this.state.oks[dc + "/" + service + "/" + tag] || 0;
         const percentage = this.state.count < 0.001 ? 0 : amount / this.state.count * 100.0;
         return <CircularProgressbar
-            className="gauge"
+            className={percentage === 0 ? "grayed gauge" : "gauge"}
             value={percentage}
             text={percentage.toFixed(1) + "%"}
             styles={{

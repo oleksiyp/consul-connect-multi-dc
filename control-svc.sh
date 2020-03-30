@@ -18,6 +18,7 @@ if [ "$CMD" == "deploy" ]; then
 elif [[ "$CMD" == "on" || "$CMD" == "off" ]]; then
   kubectl config use-context kind-$1
   for SVC in `kubectl get pods -o name | grep $2`; do
+    SVC=$(echo $SVC | sed "s#pod/##")
     kubectl exec $SVC -c service -- wget -O "$RANDOM-$RANDOM.txt" "http://localhost:8080/$CMD"
   done
 fi

@@ -68,17 +68,21 @@ suspend fun queryServices(n: Int): Response {
         return Response("$dc/$serviceName/$tag")
     }
 
-    val upstream = upstreams[ThreadLocalRandom.current().nextInt(upstreams.size)]
-    val url = "http://127.0.0.1:${upstream.port}/traffic/${upstream.name}?n=$n"
-    return try {
-        val response = client.get<Response>(url) {
-            accept(ContentType.Application.Json)
+    var lastError: Response? = null
+    for (t in 0..10) {
+        val upstream = upstreams[ThreadLocalRandom.current().nextInt(upstreams.size)]
+        val url = "http://127.0.0.1:${upstream.port}/traffic/${upstream.name}?n=$n"
+        try {
+            val response = client.get<Response>(url) {
+                accept(ContentType.Application.Json)
+            }
+            return Response("$dc/$serviceName/$tag", response.oks * mapOf(response.name to 1))
+        } catch (err: Exception) {
+            log.warn("Exception happened for '{}'", url, err)
+            lastError = Response("$dc/$serviceName/$tag")
         }
-        Response("$dc/$serviceName/$tag", response.oks * mapOf(response.name to 1))
-    } catch (err: Exception) {
-        log.warn("Exception happened for '{}'", url, err)
-        Response("$dc/$serviceName/$tag")
     }
+    return lastError!!
 }
 
 fun main() {
